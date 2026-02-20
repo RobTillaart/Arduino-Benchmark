@@ -4394,22 +4394,9 @@ void benchmarkWatchdog() {
 #elif defined(__AVR__)
   SERIAL_OUT.println(F_STR("AVR WDT: 16ms-8s, reset or IRQ"));
 
-  // Check reset cause (register names differ between classic AVR and megaAVR)
-  #if defined(BOARD_MEGAAVR)
-    // megaAVR (AVR128DA28, etc.) uses RSTFR register
-    #if defined(RSTFR)
-      uint8_t rstfr = RSTFR;
-      SERIAL_OUT.print(F_STR("Reset cause: "));
-      if (rstfr & 0x01) SERIAL_OUT.print(F_STR("Power-on "));
-      if (rstfr & 0x02) SERIAL_OUT.print(F_STR("Brown-out "));
-      if (rstfr & 0x04) SERIAL_OUT.print(F_STR("External "));
-      if (rstfr & 0x08) SERIAL_OUT.print(F_STR("Watchdog "));
-      SERIAL_OUT.println();
-    #else
-      SERIAL_OUT.println(F_STR("Reset cause: Not available on this megaAVR variant"));
-    #endif
-  #else
-    // Classic AVR (ATmega328P, etc.) uses MCUSR register
+  // Check reset cause (register names differ across AVR families)
+  #if defined(MCUSR) && defined(WDRF) && defined(BORF) && defined(EXTRF) && defined(PORF)
+    // Classic AVR (ATmega328P, ATmega32U4, etc.)
     uint8_t mcusr = MCUSR;
     SERIAL_OUT.print(F_STR("Reset cause: "));
     if (mcusr & (1 << WDRF)) SERIAL_OUT.print(F_STR("WDT "));
@@ -4417,6 +4404,37 @@ void benchmarkWatchdog() {
     if (mcusr & (1 << EXTRF)) SERIAL_OUT.print(F_STR("External "));
     if (mcusr & (1 << PORF)) SERIAL_OUT.print(F_STR("Power-on "));
     SERIAL_OUT.println();
+
+  #elif defined(RSTCTRL) && defined(RSTCTRL_WDRF_bm)
+    // megaAVR-0/1 and newer AVR families (ATmega4809, AVR128DA28, etc.)
+    uint8_t rstfr = RSTCTRL.RSTFR;
+    SERIAL_OUT.print(F_STR("Reset cause: "));
+    if (rstfr & RSTCTRL_WDRF_bm) SERIAL_OUT.print(F_STR("WDT "));
+    #if defined(RSTCTRL_BORF_bm)
+      if (rstfr & RSTCTRL_BORF_bm) SERIAL_OUT.print(F_STR("Brown-out "));
+    #elif defined(RSTCTRL_BODRF_bm)
+      if (rstfr & RSTCTRL_BODRF_bm) SERIAL_OUT.print(F_STR("Brown-out "));
+    #endif
+    #if defined(RSTCTRL_EXTRF_bm)
+      if (rstfr & RSTCTRL_EXTRF_bm) SERIAL_OUT.print(F_STR("External "));
+    #endif
+    #if defined(RSTCTRL_PORF_bm)
+      if (rstfr & RSTCTRL_PORF_bm) SERIAL_OUT.print(F_STR("Power-on "));
+    #endif
+    SERIAL_OUT.println();
+
+  #elif defined(RSTFR)
+    // Fallback for AVR parts exposing a standalone RSTFR register
+    uint8_t rstfr = RSTFR;
+    SERIAL_OUT.print(F_STR("Reset cause: "));
+    if (rstfr & 0x01) SERIAL_OUT.print(F_STR("Power-on "));
+    if (rstfr & 0x02) SERIAL_OUT.print(F_STR("Brown-out "));
+    if (rstfr & 0x04) SERIAL_OUT.print(F_STR("External "));
+    if (rstfr & 0x08) SERIAL_OUT.print(F_STR("WDT "));
+    SERIAL_OUT.println();
+
+  #else
+    SERIAL_OUT.println(F_STR("Reset cause: not available for this AVR variant"));
   #endif
 
 #elif defined(ARDUINO_UNO_Q)
