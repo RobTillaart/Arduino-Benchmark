@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [1.0.1] - 2026-02-20
 
+### Added
+- **CSV output mode** — compile-time `#define CSV_OUTPUT 1` flag (default 0) in
+  `BenchmarkHelpers.h` switches both sketches from human-readable Serial output to
+  `label,value` CSV rows, one per metric; all 252 result prints across Part 1 and
+  Part 2 are wrapped in `#if !CSV_OUTPUT` guards with matching `CSV_ROW` /
+  `CSV_BLANK` calls so every board always emits the same fixed row count
+- **`tools/import_results.py`** — Python script that reads the CSV Serial output,
+  locates the board column in a versioned `.xlsx` spreadsheet (or creates a new
+  one), matches each label to its spreadsheet row by name, and writes the numeric
+  values automatically — no manual row lookup needed. Usage:
+  ```
+  # 1. Set #define CSV_OUTPUT 1 in BenchmarkHelpers.h, upload, copy Serial output
+  python tools/import_results.py output.csv Part1_CoreBenchmarks_Results_v1.0.1.xlsx
+  ```
+
 ### Fixed
 - BLE scan now runs on ArduinoBLE-capable boards (Nano 33 BLE, RP2040 Connect,
   SAMD Nano 33 IoT, Portenta H7/C33, Giga R1, Wio Terminal) instead of printing

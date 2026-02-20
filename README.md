@@ -21,8 +21,10 @@ Boards are detected automatically at compile time using preprocessor macros — 
 ├── Part2_PlatformBenchmarks/
 │   ├── Part2_PlatformBenchmarks.ino # Platform-specific tests
 │   └── BenchmarkHelpers.h          # Shared timing utilities + benchmark version
-├── Part1_CoreBenchmarks_Results_v1.0.0.xlsx  # Core results (benchmark v1.0.0)
-├── Part2_PlatformBenchmarks_Results_v1.0.0.xlsx # Platform results (benchmark v1.0.0)
+├── tools/
+│   └── import_results.py           # CSV-to-spreadsheet import script
+├── Part1_CoreBenchmarks_Results_v1.0.1.xlsx  # Core results (benchmark v1.0.1)
+├── Part2_PlatformBenchmarks_Results_v1.0.1.xlsx # Platform results (benchmark v1.0.1)
 ├── reports/                          # Raw Serial Monitor output per board
 ├── BOARD_STATUS.md                   # Board testing tracker (status + benchmark version)
 ├── CHANGELOG.md                      # Version history and notable changes
@@ -55,6 +57,8 @@ Advanced and board-specific tests:
 
 ## How to Use
 
+### Human-readable output (default)
+
 1. Open **Arduino IDE**
 2. Select your board and port
 3. Open `Part1_CoreBenchmarks/Part1_CoreBenchmarks.ino`
@@ -66,6 +70,16 @@ Advanced and board-specific tests:
 9. Record Part 1 results in `Part1_CoreBenchmarks_Results_v<BENCHMARK_VERSION>.xlsx` and Part 2 results in `Part2_PlatformBenchmarks_Results_v<BENCHMARK_VERSION>.xlsx` (the benchmark version is printed in the Serial Monitor output)
 
 Results are printed as operations per millisecond (ops/ms), timing in microseconds, and other metrics depending on the test.
+
+### CSV output + automatic spreadsheet import
+
+For faster data entry, set `#define CSV_OUTPUT 1` in `BenchmarkHelpers.h` before uploading. The sketch will emit `label,value` rows instead of the human-readable output. Copy the Serial Monitor output to a `.csv` file, then run:
+
+```sh
+python tools/import_results.py output.csv Part1_CoreBenchmarks_Results_v1.0.1.xlsx
+```
+
+The script finds the board column by name (or creates a new one), matches each label to its spreadsheet row, and writes all numeric values automatically. Repeat for Part 2 with the Part 2 `.csv` and spreadsheet. Remember to set `CSV_OUTPUT` back to `0` when you want the normal output.
 
 See [BOARD_STATUS.md](BOARD_STATUS.md) for which boards have been tested and which still need results.
 
