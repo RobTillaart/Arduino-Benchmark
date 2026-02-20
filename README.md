@@ -89,6 +89,8 @@ See [BOARD_STATUS.md](BOARD_STATUS.md) for which boards have been tested and whi
 - **Board Manager URLs** — third-party boards (ESP32, RP2040, Teensy, STM32, etc.) require their respective Board Manager URLs to be added in Arduino IDE preferences before the board can be installed
 - **External library** — the Multiduino board requires the [Adafruit RTClib](https://github.com/adafruit/RTClib) library (`RTClib.h`); all other boards use only platform-bundled libraries
 
+> **Compile list note:** All boards listed as test-compiled in [COMPILE_LIST.md](COMPILE_LIST.md) were compiled using Arduino IDE **2.3.7** with the latest available board core versions at the time. No guarantees are made that they will compile on any other IDE or core version.
+
 ## Measurement Methodology
 
 - **Volatile accumulators** prevent the compiler from optimizing away operations
